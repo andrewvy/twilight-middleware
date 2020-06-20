@@ -1,0 +1,17 @@
+[package]
+name = "twilight-middleware"
+version = "0.1.0"
+authors = ["Andrew Vy <andrew@andrewvy.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+twilight = { git = "https://github.com/twilight-rs/twilight.git", rev = "12d3bb7c6231056a3565e24b8da59542cd8e96f4" }
+async-trait = "0.1.36"
+typemap = "0.3.3"
+tokio = "0.2.21"
+futures = "0.3.5"
+
+[dev-dependencies]
+tokio = { version = "0.2.21", features = ["rt-threaded", "macros"] }
