@@ -1,4 +1,4 @@
-use async_trait::async_trait;
+use futures::FutureExt;
 use std::{env, error::Error, sync::Arc};
 use tokio::stream::StreamExt;
 use twilight::{
@@ -10,43 +10,19 @@ use twilight::{
   model::gateway::GatewayIntents,
 };
 
-use twilight_middleware::{Context, Middleware, MiddlewareStack, Next};
+use twilight_middleware::{BoxFuture, Command, Context, MiddlewareStack, Next};
 
 pub struct State {
   http: HttpClient,
 }
 
-pub struct PrefixMiddleware {
-  prefix: String,
-}
-
-impl PrefixMiddleware {
-  pub fn new(prefix: &str) -> Self {
-    PrefixMiddleware {
-      prefix: prefix.to_owned(),
-    }
-  }
-}
-
-#[async_trait]
-impl Middleware<State> for PrefixMiddleware {
-  async fn handle<'a>(&'a self, state: Arc<State>, ctx: Context<Event>, next: Next<'a, State>) {
-    match ctx.event {
-      Event::MessageCreate(ref msg) => {
-        if msg.content.starts_with(&self.prefix) {
-          next.run(state, ctx).await;
-        }
-      }
-      _ => {}
-    }
-  }
-}
-
-pub struct PingCommand {}
-
-#[async_trait]
-impl Middleware<State> for PingCommand {
-  async fn handle<'a>(&'a self, state: Arc<State>, ctx: Context<Event>, next: Next<'a, State>) {
+fn ping<'a>(
+  _args: String,
+  state: Arc<State>,
+  ctx: Context<Event>,
+  next: Next<'a, State>,
+) -> BoxFuture<'a, ()> {
+  async move {
     match ctx.event {
       Event::MessageCreate(ref msg) => {
         let _ = state
@@ -61,6 +37,7 @@ impl Middleware<State> for PingCommand {
 
     next.run(state, ctx).await;
   }
+  .boxed()
 }
 
 #[tokio::main]
@@ -94,9 +71,8 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
   let mut events = cluster.events().await;
 
   // Setup middleware stack
-  let middleware_stack = MiddlewareStack::new(State { http: http.clone() })
-    .push(PrefixMiddleware::new("!ping"))
-    .push(PingCommand {});
+  let middleware_stack =
+    MiddlewareStack::new(State { http: http.clone() }).push(Command::new("!ping", Box::new(ping)));
 
   // Startup an event loop for each event in the event stream
   while let Some((_, event)) = events.next().await {

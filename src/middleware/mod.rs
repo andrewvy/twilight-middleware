@@ -3,8 +3,10 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use twilight::gateway::Event;
 
+mod command;
 mod context;
 
+pub use command::Command;
 pub use context::Context;
 
 #[async_trait]

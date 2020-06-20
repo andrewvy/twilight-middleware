@@ -1,9 +1,11 @@
 use std::sync::Arc;
 
-mod interceptors;
 mod middleware;
 
-pub use middleware::{Context, Middleware, Next};
+pub use async_trait::async_trait;
+pub use futures::future::BoxFuture;
+pub use middleware::{Command, Context, Middleware, Next};
+
 use twilight::gateway::Event;
 
 type Middlewares<State> = Arc<Vec<Arc<dyn Middleware<State>>>>;
