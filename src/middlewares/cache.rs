@@ -1,17 +1,9 @@
-use std::ops::Deref;
 use std::sync::Arc;
 
+use async_trait::async_trait;
 use twilight::cache::InMemoryCache;
-use typemap::Key;
 
-use crate::{async_trait, Context, Event, Middleware, Next};
-
-#[derive(Clone)]
-pub struct Cache(InMemoryCache);
-
-impl Key for Cache {
-  type Value = Self;
-}
+use crate::{Cache, Context, Event, Middleware, Next};
 
 pub struct CacheMiddleware {
   cache: Cache,
@@ -39,13 +31,5 @@ impl<State: Send + Sync + 'static> Middleware<State> for CacheMiddleware {
     local.write().await.insert::<Cache>(self.cache.clone());
 
     next.run(state, ctx).await;
-  }
-}
-
-impl Deref for Cache {
-  type Target = InMemoryCache;
-
-  fn deref(&self) -> &InMemoryCache {
-    &self.0
   }
 }

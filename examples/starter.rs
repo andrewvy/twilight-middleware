@@ -7,14 +7,17 @@ use twilight::{
     InMemoryCache,
   },
   gateway::{
-    cluster::{config::ShardScheme, Cluster, ClusterConfig},
+    cluster::{Cluster, ClusterConfig},
     Event,
   },
   http::Client as HttpClient,
   model::gateway::GatewayIntents,
 };
 
-use twilight_middleware::{BoxFuture, CacheMiddleware, Command, Context, MiddlewareStack, Next};
+use twilight_middleware::{
+  middlewares::{CacheMiddleware, Command},
+  BoxFuture, Context, MiddlewareStack, Next,
+};
 
 pub struct State {
   http: HttpClient,
@@ -48,11 +51,7 @@ fn ping<'a>(
 async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
   let token = env::var("DISCORD_TOKEN")?;
 
-  // This is also the default.
-  let scheme = ShardScheme::Auto;
-
   let config = ClusterConfig::builder(&token)
-    .shard_scheme(scheme)
     // Use intents to only listen to GUILD_MESSAGES events
     .intents(Some(
       GatewayIntents::GUILD_MESSAGES | GatewayIntents::DIRECT_MESSAGES,
