@@ -2,6 +2,10 @@ use futures::FutureExt;
 use std::{env, error::Error, sync::Arc};
 use tokio::stream::StreamExt;
 use twilight::{
+  cache::{
+    twilight_cache_inmemory::config::{EventType, InMemoryConfigBuilder},
+    InMemoryCache,
+  },
   gateway::{
     cluster::{config::ShardScheme, Cluster, ClusterConfig},
     Event,
@@ -10,7 +14,7 @@ use twilight::{
   model::gateway::GatewayIntents,
 };
 
-use twilight_middleware::{BoxFuture, Command, Context, MiddlewareStack, Next};
+use twilight_middleware::{BoxFuture, CacheMiddleware, Command, Context, MiddlewareStack, Next};
 
 pub struct State {
   http: HttpClient,
@@ -70,9 +74,21 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
   let mut events = cluster.events().await;
 
+  let cache_config = InMemoryConfigBuilder::new()
+    .event_types(
+      EventType::MESSAGE_CREATE
+        | EventType::MESSAGE_DELETE
+        | EventType::MESSAGE_DELETE_BULK
+        | EventType::MESSAGE_UPDATE,
+    )
+    .build();
+
+  let cache = InMemoryCache::from(cache_config);
+
   // Setup middleware stack
-  let middleware_stack =
-    MiddlewareStack::new(State { http: http.clone() }).push(Command::new("!ping", Box::new(ping)));
+  let middleware_stack = MiddlewareStack::new(State { http: http.clone() })
+    .push(CacheMiddleware::new(cache))
+    .push(Command::new("!ping", Box::new(ping)));
 
   // Startup an event loop for each event in the event stream
   while let Some((_, event)) = events.next().await {

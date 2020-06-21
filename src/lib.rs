@@ -1,8 +1,10 @@
 use std::sync::Arc;
 
-mod middleware;
+pub mod cache;
+pub mod middleware;
 
 pub use async_trait::async_trait;
+pub use cache::{Cache, CacheMiddleware};
 pub use futures::future::BoxFuture;
 pub use middleware::{Command, Context, Middleware, Next};
 
