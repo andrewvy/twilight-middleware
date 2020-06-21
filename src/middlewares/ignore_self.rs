@@ -1,11 +1,17 @@
 use std::sync::Arc;
 
+use async_trait::async_trait;
 use twilight::{gateway::Event, model::id::UserId};
 
 use crate::{Cache, Context, Middleware, Next};
-use async_trait::async_trait;
 
 pub struct IgnoreSelf {}
+
+impl IgnoreSelf {
+  pub fn new() -> Self {
+    Self {}
+  }
+}
 
 #[async_trait]
 impl<State: Send + Sync + 'static> Middleware<State> for IgnoreSelf {

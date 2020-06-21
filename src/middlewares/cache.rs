@@ -31,6 +31,8 @@ impl<State: Send + Sync + 'static> Middleware<State> for CacheMiddleware {
 
     writer.insert::<Cache>(self.cache.clone());
 
+    drop(writer);
+
     next.run(state, ctx).await;
   }
 }
