@@ -1,12 +1,12 @@
 use std::ops::Deref;
 use std::sync::Arc;
 
-pub mod middlewares;
-
 pub use async_trait::async_trait;
 pub use futures::future::BoxFuture;
-
+pub use futures::FutureExt;
 pub use twilight::gateway::Event;
+
+pub mod middlewares;
 
 use tokio::sync::RwLock;
 use typemap::{ShareMap, TypeMap};

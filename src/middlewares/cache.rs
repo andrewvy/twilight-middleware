@@ -27,8 +27,9 @@ impl<State: Send + Sync + 'static> Middleware<State> for CacheMiddleware {
       .expect("Could not cache event");
 
     let local = ctx.local();
+    let mut writer = local.write().await;
 
-    local.write().await.insert::<Cache>(self.cache.clone());
+    writer.insert::<Cache>(self.cache.clone());
 
     next.run(state, ctx).await;
   }
