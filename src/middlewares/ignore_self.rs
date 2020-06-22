@@ -25,6 +25,8 @@ impl<State: Send + Sync + 'static> Middleware<State> for IgnoreSelf {
     match ctx.event {
       Event::MessageCreate(ref msg) => {
         if msg.author.id != user_id {
+          drop(reader);
+
           next.run(state, ctx).await;
         }
       }

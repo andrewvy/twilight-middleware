@@ -20,18 +20,18 @@ impl CacheMiddleware {
 #[async_trait]
 impl<State: Send + Sync + 'static> Middleware<State> for CacheMiddleware {
   async fn handle<'a>(&'a self, state: Arc<State>, ctx: Context<Event>, next: Next<'a, State>) {
-    self
-      .cache
-      .update(&ctx.event)
-      .await
-      .expect("Could not cache event");
+    {
+      self
+        .cache
+        .update(&ctx.event)
+        .await
+        .expect("Could not cache event");
 
-    let local = ctx.local();
-    let mut writer = local.write().await;
+      let local = ctx.local();
+      let mut writer = local.write().await;
 
-    writer.insert::<Cache>(self.cache.clone());
-
-    drop(writer);
+      writer.insert::<Cache>(self.cache.clone());
+    }
 
     next.run(state, ctx).await;
   }
