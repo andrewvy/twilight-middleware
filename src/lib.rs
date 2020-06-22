@@ -5,6 +5,7 @@ pub use async_trait::async_trait;
 pub use futures::future::BoxFuture;
 pub use futures::FutureExt;
 pub use twilight::gateway::Event;
+pub use typemap;
 
 pub mod middlewares;
 
