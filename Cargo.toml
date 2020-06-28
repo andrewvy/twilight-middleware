@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-twilight = { git = "https://github.com/twilight-rs/twilight.git", rev = "12d3bb7c6231056a3565e24b8da59542cd8e96f4" }
+twilight = { git = "https://github.com/twilight-rs/twilight.git", rev = "244259a44b39d934d16bb9b2f761bd28d8bd0bff" }
 async-trait = "0.1.36"
 typemap = "0.3.3"
 tokio = "0.2.21"
